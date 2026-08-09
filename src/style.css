@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #fbb313; /* Amarelo do colégio */
+  --color-primary-dark: #e5a20f;
+  --color-secondary: #e62314; /* Vermelho do colégio */
+  --color-secondary-dark: #c01a0e;
+  --color-base: #ffffff;
+  --color-background: #f8fafc;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-slate-800 antialiased;
+  }
+}
