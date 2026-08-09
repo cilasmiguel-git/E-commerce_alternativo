@@ -26,7 +26,7 @@
       <!-- Grid responsivo ajustado para maior respiro -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10">
         <ProductCard 
-          v-for="product in mockProducts" 
+          v-for="product in combinedProducts" 
           :key="product.id" 
           :product="product" 
         />
@@ -36,8 +36,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import ProductCard from '../components/ProductCard.vue'
+
+const apiProducts = ref([])
 
 const mockProducts = ref([
   {
@@ -94,6 +96,59 @@ const mockProducts = ref([
     imageBack: '/uniformes/short-saia-infantojuvenil/costas.jpg'
   }
 ])
+
+const combinedProducts = ref([...mockProducts.value])
+
+const fetchProducts = async () => {
+  try {
+    const tenantId = import.meta.env.VITE_TENANT_ID || 'ID_DO_COLACO_AQUI'
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+    
+    console.log('🔄 Buscando produtos do banco...')
+    console.log(`📡 URL da API: ${apiUrl}`)
+    console.log(`🏢 Tenant ID: ${tenantId}`)
+    
+    // Busca os produtos na nova rota pública recém-criada no backend
+    const endpoint = `${apiUrl}/api/store/${tenantId}/products`
+    console.log(`🔗 Endpoint chamado: ${endpoint}`)
+    
+    const res = await fetch(endpoint)
+
+    if (res.ok) {
+      const data = await res.json()
+      console.log('✅ Resposta da API:', data)
+      
+      // O backend pode retornar direto o array ou dentro de um objeto (ex: data.produtos ou data.products)
+      const fetchedProducts = Array.isArray(data) ? data : (data.products || data.produtos || [])
+      console.log(`📦 Produtos encontrados no banco: ${fetchedProducts.length}`, fetchedProducts)
+      
+      // Formata os produtos do banco para combinar com o padrão do frontend
+      const formattedProducts = fetchedProducts.map(p => ({
+        id: p._id,
+        name: p.nome || p.name,
+        description: p.descricao || p.description,
+        price: p.preco || p.price,
+        category: p.categoria || p.category || 'Outros',
+        image: p.imagem || p.image || null,
+        imageBack: null
+      }))
+      
+      // Combina os produtos vindos do banco com os mockProducts
+      combinedProducts.value = [...formattedProducts, ...mockProducts.value]
+      console.log('🛒 Produtos combinados (Banco + Mock):', combinedProducts.value)
+    } else {
+      console.warn('❌ Erro na resposta da API. Status:', res.status)
+      const errorText = await res.text()
+      console.warn('📝 Detalhes do erro:', errorText)
+    }
+  } catch (error) {
+    console.error('❌ Erro de rede ou ao buscar produtos:', error)
+  }
+}
+
+onMounted(() => {
+  fetchProducts()
+})
 </script>
 
 <style scoped>
