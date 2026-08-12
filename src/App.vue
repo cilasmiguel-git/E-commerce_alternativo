@@ -30,14 +30,20 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
 import { Toaster } from 'vue-sonner'
+import { useAuthStore } from './stores/auth'
+import { useCartStore } from './stores/cart'
 
 const toastPosition = ref('bottom-left')
+const authStore = useAuthStore()
+const cartStore = useCartStore()
 
 const updatePosition = () => {
   toastPosition.value = window.innerWidth < 768 ? 'top-center' : 'bottom-left'
 }
 
 onMounted(() => {
+  authStore.initAuth() // Restaura a sessão do localStorage
+  cartStore.loadFromStorage() // Restaura o carrinho do localStorage
   updatePosition()
   window.addEventListener('resize', updatePosition)
 })

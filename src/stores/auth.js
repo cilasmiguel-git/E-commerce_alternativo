@@ -1,15 +1,34 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://api.educacaoalternativa360.com.br',
   withCredentials: true // Importante para receber cookies (JWT) do backend
+})
+
+// Adiciona o token Bearer no cabeçalho se o cookie falhar (CORS/Cross-Origin)
+api.interceptors.request.use((config) => {
+  const stored = localStorage.getItem('store_auth')
+  if (stored) {
+    try {
+      const data = JSON.parse(stored)
+      if (data.token) {
+        if (config.headers.set) {
+          config.headers.set('Authorization', `Bearer ${data.token}`)
+        } else {
+          config.headers.Authorization = `Bearer ${data.token}`
+        }
+      }
+    } catch (e) {}
+  }
+  return config
 })
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     storeProfile: null,
+    token: null, // Armazenando o token do backend
     isAuthenticated: false,
     loading: false,
     error: null
@@ -48,7 +67,12 @@ export const useAuthStore = defineStore('auth', {
         if (response.data.status === 'success') {
           this.user = response.data.user
           this.storeProfile = response.data.storeProfile
+          this.token = response.data.token // Salva o token
           this.isAuthenticated = true
+          
+          // Salva no localStorage para não perder no refresh
+          this.persistState()
+          
           return response.data
         }
       } catch (err) {
@@ -63,15 +87,15 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        // Exemplo de rota de atualização - precisará ser confirmada com o backend
         const response = await api.put('/api/auth/store/profile', profileData)
         
         if (response.data.storeProfile) {
           this.storeProfile = response.data.storeProfile
         } else {
-          // Atualização otimista caso a API não retorne o perfil inteiro
           this.storeProfile = { ...this.storeProfile, ...profileData, statusCadastro: 'completo' }
         }
+        
+        this.persistState()
         return true
       } catch (err) {
         this.error = err.response?.data?.message || 'Erro ao atualizar perfil'
@@ -84,8 +108,34 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null
       this.storeProfile = null
+      this.token = null
       this.isAuthenticated = false
-      // api.post('/api/auth/logout') // Opcional: chamar API de logout se existir
+      localStorage.removeItem('store_auth')
+      // api.post('/api/auth/logout') // Opcional: chamar API de logout
+    },
+
+    persistState() {
+      localStorage.setItem('store_auth', JSON.stringify({
+        user: this.user,
+        storeProfile: this.storeProfile,
+        token: this.token,
+        isAuthenticated: this.isAuthenticated
+      }))
+    },
+
+    initAuth() {
+      const stored = localStorage.getItem('store_auth')
+      if (stored) {
+        try {
+          const data = JSON.parse(stored)
+          this.user = data.user
+          this.storeProfile = data.storeProfile
+          this.token = data.token
+          this.isAuthenticated = data.isAuthenticated
+        } catch (e) {
+          console.error('Erro ao ler auth state do storage', e)
+        }
+      }
     }
   }
 })

@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white rounded-xl overflow-hidden flex flex-col h-full group border border-slate-100 hover:border-slate-200 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_-5px_rgba(6,81,237,0.1)] transition-all duration-300">
-    <div class="relative aspect-[4/3] bg-white overflow-hidden flex items-center justify-center">
+    <div class="relative aspect-[4/3] bg-white overflow-hidden flex items-center justify-center cursor-pointer" @click="$emit('open-details', product)">
       <!-- Placeholder Refinado -->
       <div v-if="!product.image" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 bg-gradient-to-br from-slate-50 to-slate-100/50 group-hover:scale-105 transition-transform duration-700 ease-out">
         <ImageIcon class="w-12 h-12 mb-2 stroke-1" />
@@ -24,7 +24,12 @@
     
     <div class="p-6 flex flex-col flex-grow">
       <div class="flex-grow">
-        <h3 class="font-semibold text-base text-slate-800 mb-2 leading-snug group-hover:text-primary transition-colors text-balance min-h-[2.75rem]">{{ product.name }}</h3>
+        <h3 
+          class="font-semibold text-base text-slate-800 mb-2 leading-snug group-hover:text-primary transition-colors text-balance min-h-[2.75rem] cursor-pointer"
+          @click="$emit('open-details', product)"
+        >
+          {{ product.name }}
+        </h3>
         <p class="text-sm text-slate-500 line-clamp-2 leading-relaxed min-h-[2.85rem]">{{ product.description }}</p>
       </div>
       
@@ -51,6 +56,8 @@ import { computed } from 'vue'
 import { Image as ImageIcon, ShoppingCart } from '@lucide/vue'
 import { useCartStore } from '../stores/cart'
 import { toast } from 'vue-sonner'
+
+defineEmits(['open-details'])
 
 const props = defineProps({
   product: {

@@ -30,12 +30,6 @@ const router = createRouter({
       name: 'login',
       component: () => import('../views/LoginView.vue'),
       meta: { guestOnly: true }
-    },
-    {
-      path: '/completar-cadastro',
-      name: 'complete-profile',
-      component: () => import('../views/CompleteProfileView.vue'),
-      meta: { requiresAuth: true }
     }
   ]
 })
@@ -47,8 +41,6 @@ router.beforeEach((to, from, next) => {
     next('/login')
   } else if (to.meta.guestOnly && authStore.isAuthenticated) {
     next('/checkout')
-  } else if (to.meta.requiresAuth && to.path === '/checkout' && authStore.storeProfile?.statusCadastro === 'incompleto') {
-    next('/completar-cadastro')
   } else {
     next()
   }
