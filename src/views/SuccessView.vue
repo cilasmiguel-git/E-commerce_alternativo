@@ -19,13 +19,19 @@
         <p><strong>Atenção:</strong> Caso ainda não tenha concluído o pagamento pela plataforma AbacatePay, você pode acessar o link diretamente no seu e-mail para finalizar.</p>
       </div>
 
-      <router-link to="/" class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium py-4 px-10 rounded-full transition-colors shadow-md shadow-slate-900/10">
-        Continuar Navegando
-      </router-link>
+      <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <router-link to="/orders" class="inline-flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-4 px-8 rounded-full transition-all shadow-md shadow-amber-500/20">
+          <ShoppingBag class="w-5 h-5" />
+          Acompanhar em Meus Pedidos
+        </router-link>
+        <router-link to="/" class="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium py-4 px-8 rounded-full transition-colors shadow-md shadow-slate-900/10">
+          Continuar Navegando
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { CheckCircle2, AlertCircle } from '@lucide/vue'
+import { CheckCircle2, AlertCircle, ShoppingBag } from '@lucide/vue'
 </script>

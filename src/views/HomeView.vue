@@ -162,22 +162,13 @@ const fetchProducts = async () => {
   try {
     const tenantId = import.meta.env.VITE_TENANT_ID || 'ID_DO_COLACO_AQUI'
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
-    
-    console.log('🔄 Buscando produtos do banco...')
-    console.log(`📡 URL da API: ${apiUrl}`)
-    console.log(`🏢 Tenant ID: ${tenantId}`)
-    
     const endpoint = `${apiUrl}/api/store/${tenantId}/products`
-    console.log(`🔗 Endpoint chamado: ${endpoint}`)
     
     const res = await fetch(endpoint)
 
     if (res.ok) {
       const data = await res.json()
-      console.log('✅ Resposta da API:', data)
-      
       const fetchedProducts = Array.isArray(data) ? data : (data.products || data.produtos || [])
-      console.log(`📦 Produtos encontrados no banco: ${fetchedProducts.length}`, fetchedProducts)
       
       products.value = fetchedProducts.map(p => {
         const rawCategory = p.categoria || p.category || 'Outros'
@@ -191,15 +182,11 @@ const fetchProducts = async () => {
           imageBack: p.imagemHover || null
         }
       })
-      console.log('🛒 Produtos e categorias carregados exclusivamente do backend:', products.value)
     } else {
-      console.warn('❌ Erro na resposta da API. Status:', res.status)
-      const errorText = await res.text()
-      console.warn('📝 Detalhes do erro:', errorText)
       products.value = []
     }
   } catch (error) {
-    console.error('❌ Erro de rede ou ao buscar produtos:', error)
+    console.error('Erro ao carregar produtos:', error)
     products.value = []
   } finally {
     isLoading.value = false

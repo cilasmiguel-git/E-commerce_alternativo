@@ -415,8 +415,6 @@ const submitOrder = async () => {
       taxId: userTaxId,
       cellphone: userCellphone
     }
-    
-    console.log('📡 Enviando dados do cliente para pré-preenchimento no AbacatePay:', customerData)
 
     // Chama o NOSSO backend, que fará a ponte com a AbacatePay
     const response = await api.post('/api/store/checkout', {

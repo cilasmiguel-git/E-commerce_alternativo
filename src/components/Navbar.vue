@@ -11,9 +11,18 @@
       </router-link>
 
       <!-- Desktop Nav -->
-      <div class="hidden md:flex items-center gap-8">
+      <div class="hidden md:flex items-center gap-6">
         <router-link to="/" class="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Início</router-link>
         
+        <router-link 
+          v-if="authStore.isAuthenticated" 
+          to="/orders" 
+          class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-50"
+        >
+          <ShoppingBag class="w-4 h-4 text-slate-500" />
+          <span>Meus Pedidos</span>
+        </router-link>
+
         <div v-if="authStore.isAuthenticated" class="flex items-center gap-2 text-sm font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
           <User class="w-4 h-4 text-primary" />
           <span>Olá, {{ authStore.user?.firstName || 'Usuário' }}</span>
@@ -42,6 +51,15 @@
         <span>Olá, {{ authStore.user?.firstName || 'Usuário' }}</span>
       </div>
       <router-link @click="isMenuOpen = false" to="/" class="text-base font-medium text-slate-600 hover:text-slate-900 py-2 border-b border-slate-50">Início</router-link>
+      <router-link 
+        v-if="authStore.isAuthenticated" 
+        @click="isMenuOpen = false" 
+        to="/orders" 
+        class="flex items-center gap-2 text-base font-medium text-slate-600 hover:text-slate-900 py-2 border-b border-slate-50"
+      >
+        <ShoppingBag class="w-5 h-5 text-slate-500" />
+        <span>Meus Pedidos</span>
+      </router-link>
       <router-link @click="isMenuOpen = false" to="/cart" class="flex items-center justify-between text-base font-medium text-slate-600 hover:text-slate-900 py-2">
         <div class="flex items-center gap-2">
           <ShoppingCart class="w-5 h-5" />
@@ -59,7 +77,7 @@
 import { ref } from 'vue'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore } from '../stores/auth'
-import { ShoppingCart, Menu, X, User } from '@lucide/vue'
+import { ShoppingCart, ShoppingBag, Menu, X, User } from '@lucide/vue'
 
 const cartStore = useCartStore()
 const authStore = useAuthStore()
