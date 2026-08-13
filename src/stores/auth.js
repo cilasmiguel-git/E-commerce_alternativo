@@ -35,6 +35,33 @@ export const useAuthStore = defineStore('auth', {
   }),
   
   actions: {
+    async login(email, password) {
+      this.loading = true
+      this.error = null
+      try {
+        const tenantId = import.meta.env.VITE_TENANT_ID || 'ID_DO_COLACO_AQUI'
+        const response = await api.post('/api/auth/store/login', {
+          email,
+          password,
+          tenantId
+        })
+        
+        if (response.data.status === 'success') {
+          this.user = response.data.user
+          this.storeProfile = response.data.storeProfile
+          this.token = response.data.token
+          this.isAuthenticated = true
+          this.persistState()
+          return response.data
+        }
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Erro ao realizar login'
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
     async sendOtp(email) {
       this.loading = true
       this.error = null
@@ -53,16 +80,21 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async verifyOtp(email, code) {
+    async verifyOtp(email, code, password = null) {
       this.loading = true
       this.error = null
       try {
         const tenantId = import.meta.env.VITE_TENANT_ID || 'ID_DO_COLACO_AQUI'
-        const response = await api.post('/api/auth/store/verify-otp', {
+        const payload = {
           email,
           tenantId,
           code
-        })
+        }
+        if (password) {
+          payload.password = password
+        }
+
+        const response = await api.post('/api/auth/store/verify-otp', payload)
         
         if (response.data.status === 'success') {
           this.user = response.data.user
@@ -77,6 +109,22 @@ export const useAuthStore = defineStore('auth', {
         }
       } catch (err) {
         this.error = err.response?.data?.message || 'Código inválido ou expirado'
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async setPassword(password) {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await api.post('/api/auth/store/set-password', {
+          password
+        })
+        return response.data
+      } catch (err) {
+        this.error = err.response?.data?.message || 'Erro ao definir senha'
         throw err
       } finally {
         this.loading = false
