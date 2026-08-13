@@ -13,18 +13,18 @@
 
     <Footer />
 
-    <!-- Botão Flutuante do WhatsApp Ilustrado -->
+    <!-- Botão Flutuante do WhatsApp Ajustado para Canto Inferior Esquerdo -->
     <a 
       :href="whatsappUrl" 
       target="_blank"
       rel="noopener noreferrer"
-      class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 group hover:-translate-y-1.5 hover:scale-105 transition-all duration-300 drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)]"
+      class="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-50 group hover:-translate-y-1.5 hover:scale-105 transition-all duration-300 drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)]"
       title="Fale conosco no WhatsApp - Colégio Alternativo Colaço"
     >
       <img 
         src="/whatsapp-help.png" 
         alt="Podemos Ajudar? WhatsApp Colégio Alternativo Colaço" 
-        class="w-44 sm:w-52 md:w-60 h-auto object-contain filter drop-shadow-md group-hover:brightness-105 transition-all" 
+        class="w-32 sm:w-40 md:w-48 h-auto object-contain filter drop-shadow-md group-hover:brightness-105 transition-all" 
       />
     </a>
   </div>
