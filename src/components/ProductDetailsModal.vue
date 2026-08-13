@@ -54,10 +54,20 @@
               {{ product?.description || 'Nenhuma descrição fornecida para este item.' }}
             </p>
             
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-4">
               <span class="text-3xl font-extrabold text-white tracking-tight drop-shadow-lg">
                 R$ {{ product?.price?.toFixed(2) }}
               </span>
+
+              <router-link 
+                to="/tabela-tamanhos" 
+                target="_blank"
+                @click="close"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:text-amber-300 bg-amber-400/10 px-3 py-1.5 rounded-full border border-amber-400/20 backdrop-blur-sm transition-all"
+              >
+                <Ruler class="w-3.5 h-3.5" />
+                <span>Guia de Tamanhos</span>
+              </router-link>
             </div>
 
             <!-- Botões de Ação -->
@@ -77,7 +87,7 @@
 
 <script setup>
 import { onMounted, onUnmounted, watch } from 'vue'
-import { X, ShoppingCart, Image } from '@lucide/vue'
+import { X, ShoppingCart, Image, Ruler } from '@lucide/vue'
 
 const props = defineProps({
   isOpen: {

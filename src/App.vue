@@ -13,20 +13,25 @@
 
     <Footer />
 
-    <!-- Botão Flutuante do WhatsApp Ajustado -->
+    <!-- Botão Flutuante do WhatsApp Ilustrado -->
     <a 
-      href="https://wa.me/5599999999999" 
+      :href="whatsappUrl" 
       target="_blank"
-      class="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 hover:-translate-y-1 hover:scale-105 transition-all duration-300 drop-shadow-2xl"
-      title="Fale conosco no WhatsApp"
+      rel="noopener noreferrer"
+      class="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 group hover:-translate-y-1.5 hover:scale-105 transition-all duration-300 drop-shadow-[0_10px_25px_rgba(0,0,0,0.25)]"
+      title="Fale conosco no WhatsApp - Colégio Alternativo Colaço"
     >
-      <img src="/whatsapp-help.png" alt="Podemos Ajudar? WhatsApp" class="w-36 md:w-44 h-auto" />
+      <img 
+        src="/whatsapp-help.png" 
+        alt="Podemos Ajudar? WhatsApp Colégio Alternativo Colaço" 
+        class="w-44 sm:w-52 md:w-60 h-auto object-contain filter drop-shadow-md group-hover:brightness-105 transition-all" 
+      />
     </a>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
 import { Toaster } from 'vue-sonner'
@@ -36,6 +41,12 @@ import { useCartStore } from './stores/cart'
 const toastPosition = ref('bottom-left')
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+
+const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '5511999999999'
+const whatsappUrl = computed(() => {
+  const text = encodeURIComponent('Olá! Gostaria de tirar uma dúvida sobre a loja do Colégio Alternativo Colaço.')
+  return `https://wa.me/${whatsappNumber}?text=${text}`
+})
 
 const updatePosition = () => {
   toastPosition.value = window.innerWidth < 768 ? 'top-center' : 'bottom-left'

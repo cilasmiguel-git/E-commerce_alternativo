@@ -11,22 +11,35 @@
       </router-link>
 
       <!-- Desktop Nav -->
-      <div class="hidden md:flex items-center gap-6">
+      <div class="hidden md:flex items-center gap-5">
         <router-link to="/" class="text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">Início</router-link>
         
         <router-link 
+          to="/tabela-tamanhos" 
+          class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
+        >
+          <Ruler class="w-4 h-4 text-amber-500" />
+          <span>Guia de Tamanhos</span>
+        </router-link>
+
+        <router-link 
           v-if="authStore.isAuthenticated" 
           to="/orders" 
-          class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-50"
+          class="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-2.5 py-1.5 rounded-lg hover:bg-slate-50"
         >
           <ShoppingBag class="w-4 h-4 text-slate-500" />
           <span>Meus Pedidos</span>
         </router-link>
 
-        <div v-if="authStore.isAuthenticated" class="flex items-center gap-2 text-sm font-medium text-slate-700 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
+        <router-link 
+          v-if="authStore.isAuthenticated" 
+          to="/profile" 
+          class="flex items-center gap-2 text-sm font-medium text-slate-700 bg-slate-50 hover:bg-slate-100 px-3 py-1.5 rounded-full border border-slate-100 transition-colors"
+          title="Ver Meu Perfil"
+        >
           <User class="w-4 h-4 text-primary" />
           <span>Olá, {{ authStore.user?.firstName || 'Usuário' }}</span>
-        </div>
+        </router-link>
 
         <router-link to="/cart" class="relative flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full hover:bg-slate-100 transition-colors">
           <ShoppingCart class="w-5 h-5 text-slate-700" />
@@ -46,11 +59,24 @@
 
     <!-- Mobile Nav Dropdown -->
     <div v-if="isMenuOpen" class="md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 shadow-lg py-4 px-4 flex flex-col gap-4 z-40">
-      <div v-if="authStore.isAuthenticated" class="flex items-center gap-2 text-sm font-medium text-slate-700 pb-2 border-b border-slate-50">
+      <router-link 
+        v-if="authStore.isAuthenticated" 
+        @click="isMenuOpen = false"
+        to="/profile" 
+        class="flex items-center gap-2 text-sm font-medium text-slate-700 pb-2 border-b border-slate-50 hover:text-slate-900"
+      >
         <User class="w-5 h-5 text-primary" />
-        <span>Olá, {{ authStore.user?.firstName || 'Usuário' }}</span>
-      </div>
+        <span>Olá, {{ authStore.user?.firstName || 'Usuário' }} (Meu Perfil)</span>
+      </router-link>
       <router-link @click="isMenuOpen = false" to="/" class="text-base font-medium text-slate-600 hover:text-slate-900 py-2 border-b border-slate-50">Início</router-link>
+      <router-link 
+        @click="isMenuOpen = false" 
+        to="/tabela-tamanhos" 
+        class="flex items-center gap-2 text-base font-medium text-slate-600 hover:text-slate-900 py-2 border-b border-slate-50"
+      >
+        <Ruler class="w-5 h-5 text-amber-500" />
+        <span>Guia de Tamanhos</span>
+      </router-link>
       <router-link 
         v-if="authStore.isAuthenticated" 
         @click="isMenuOpen = false" 
@@ -77,7 +103,7 @@
 import { ref } from 'vue'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore } from '../stores/auth'
-import { ShoppingCart, ShoppingBag, Menu, X, User } from '@lucide/vue'
+import { ShoppingCart, ShoppingBag, Menu, X, User, Ruler } from '@lucide/vue'
 
 const cartStore = useCartStore()
 const authStore = useAuthStore()
