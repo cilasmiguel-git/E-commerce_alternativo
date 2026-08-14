@@ -54,29 +54,20 @@
         />
       </div>
     </section>
-
-    <!-- Modal de Detalhes do Produto (Estilo TikTok/Stories) -->
-    <ProductDetailsModal
-      :is-open="isModalOpen"
-      :product="selectedProduct"
-      @close="closeProductDetails"
-      @add-to-cart="handleAddToCartFromModal"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import ProductCard from '../components/ProductCard.vue'
-import ProductDetailsModal from '../components/ProductDetailsModal.vue'
 import { useCartStore } from '../stores/cart'
 import { toast } from 'vue-sonner'
 
+const router = useRouter()
 const products = ref([])
 const isLoading = ref(true)
 const selectedCategory = ref('Todos')
-const isModalOpen = ref(false)
-const selectedProduct = ref(null)
 const cartStore = useCartStore()
 
 const defaultCategories = ['Todos', 'Uniformes', 'Materiais', 'Acessórios', 'Outros']
@@ -137,25 +128,7 @@ const filteredProducts = computed(() => {
 })
 
 const openProductDetails = (product) => {
-  selectedProduct.value = product
-  isModalOpen.value = true
-}
-
-const closeProductDetails = () => {
-  isModalOpen.value = false
-  setTimeout(() => {
-    selectedProduct.value = null
-  }, 300)
-}
-
-const handleAddToCartFromModal = (product, selectedSize = null) => {
-  cartStore.addItem(product, selectedSize)
-  const sizeMsg = selectedSize ? ` (Tam: ${selectedSize})` : ''
-  toast.success('Adicionado ao Carrinho', {
-    description: `${product.name}${sizeMsg} foi adicionado com sucesso.`,
-    duration: 3000,
-  })
-  closeProductDetails()
+  router.push(`/produto/${product.id}`)
 }
 
 const fetchProducts = async () => {

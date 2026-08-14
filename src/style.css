@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --primary-color: #24303B;
-  --secondary-color: #ffde59;
+  --primary-color: #fbb313;
+  --secondary-color: #24303B;
   --tertiary-color: #EC3237;
   --background-color-1: #FFFFFF;
   --background-color-2: #f4f6f8; 
@@ -17,10 +17,10 @@
 }
 
 @theme {
-  --color-primary: #24303B; /* Azul Escuro / Slate padrão 360 */
-  --color-primary-dark: #1b242d;
-  --color-secondary: #ffde59; /* Amarelo do colégio */
-  --color-secondary-dark: #e5c74f;
+  --color-primary: #fbb313; /* Amarelo oficial do colégio (#fbb313) */
+  --color-primary-dark: #e5a20f;
+  --color-secondary: #24303B; /* Azul Escuro / Slate 360 */
+  --color-secondary-dark: #1b242d;
   --color-tertiary: #EC3237; /* Vermelho do colégio */
   --color-tertiary-dark: #c8282d;
   --color-base: #ffffff;

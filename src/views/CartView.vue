@@ -40,7 +40,7 @@
                 <Minus class="w-4 h-4" />
               </button>
               <span class="w-10 text-center font-medium text-sm text-slate-800">{{ item.quantity }}</span>
-              <button @click="cartStore.updateQuantity(item.id, item.quantity + 1, item.selectedSize)" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-colors shadow-sm">
+              <button @click="increaseQuantity(item)" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-colors shadow-sm">
                 <Plus class="w-4 h-4" />
               </button>
             </div>
@@ -91,6 +91,18 @@
 <script setup>
 import { useCartStore } from '../stores/cart'
 import { ShoppingCart, Plus, Minus, Trash2, Image as ImageIcon, ArrowRight } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 
 const cartStore = useCartStore()
+
+const increaseQuantity = (item) => {
+  const res = cartStore.updateQuantity(item.id, item.quantity + 1, item.selectedSize)
+  if (res && !res.success && res.reason === 'out_of_stock') {
+    const sizeMsg = item.selectedSize ? ` para o tamanho ${item.selectedSize}` : ''
+    toast.error('Estoque Máximo Atingido', {
+      description: `Não há mais unidades em estoque${sizeMsg} (${res.maxStock} disponível(is)).`,
+      duration: 3000
+    })
+  }
+}
 </script>

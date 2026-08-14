@@ -27,9 +27,26 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  function getItemStock(product, selectedSize = null) {
+    if (!product || !product.gerenciaEstoque) return Infinity
+    const sizeToUse = selectedSize || product.selectedSize || product.tamanhoSelecionado || null
+    if (product.estoquePorTamanho && product.estoquePorTamanho.length > 0 && sizeToUse) {
+      const itemStock = product.estoquePorTamanho.find(s => s.tamanho === sizeToUse)
+      if (itemStock) return itemStock.estoque
+    }
+    return product.estoque !== undefined ? product.estoque : Infinity
+  }
+
   function addItem(product, selectedSize = null) {
     const sizeToUse = selectedSize || product.selectedSize || product.tamanhoSelecionado || null
     const existingItem = items.value.find(item => item.id === product.id && (item.selectedSize || null) === sizeToUse)
+    const maxStock = getItemStock(product, sizeToUse)
+    const currentQty = existingItem ? existingItem.quantity : 0
+
+    if (currentQty + 1 > maxStock) {
+      return { success: false, maxStock, currentQty, reason: 'out_of_stock' }
+    }
+
     if (existingItem) {
       existingItem.quantity++
     } else {
@@ -40,6 +57,7 @@ export const useCartStore = defineStore('cart', () => {
       })
     }
     saveToStorage()
+    return { success: true }
   }
 
   function removeItem(productId, selectedSize = null) {
@@ -53,13 +71,21 @@ export const useCartStore = defineStore('cart', () => {
   function updateQuantity(productId, quantity, selectedSize = null) {
     const item = items.value.find(item => item.id === productId && (item.selectedSize || null) === (selectedSize || null))
     if (item) {
+      if (quantity > item.quantity) {
+        const maxStock = getItemStock(item, selectedSize)
+        if (quantity > maxStock) {
+          return { success: false, maxStock, currentQty: item.quantity, reason: 'out_of_stock' }
+        }
+      }
       item.quantity = quantity
       if (item.quantity <= 0) {
         removeItem(productId, selectedSize)
       } else {
         saveToStorage()
       }
+      return { success: true }
     }
+    return { success: false, reason: 'not_found' }
   }
 
   function clearCart() {
@@ -67,5 +93,5 @@ export const useCartStore = defineStore('cart', () => {
     saveToStorage()
   }
 
-  return { items, totalItems, totalPrice, addItem, removeItem, updateQuantity, clearCart, loadFromStorage }
+  return { items, totalItems, totalPrice, addItem, removeItem, updateQuantity, clearCart, loadFromStorage, getItemStock }
 })

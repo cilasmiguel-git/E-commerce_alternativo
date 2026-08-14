@@ -1,17 +1,17 @@
 <template>
   <div 
-    class="bg-white rounded-xl overflow-hidden flex flex-col h-full group border border-slate-100 hover:border-slate-200 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_-5px_rgba(6,81,237,0.1)] transition-all duration-300"
+    class="bg-white rounded-xl overflow-hidden flex flex-col h-full border border-slate-100 hover:border-slate-200 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_-5px_rgba(6,81,237,0.1)] transition-all duration-300"
     :class="{'opacity-75': isOutOfStock}"
   >
-    <div class="relative aspect-[4/3] bg-white overflow-hidden flex items-center justify-center cursor-pointer" @click="$emit('open-details', product)">
+    <div class="relative aspect-[4/3] bg-white overflow-hidden flex items-center justify-center cursor-pointer group/img" @click="goToDetails">
       <!-- Placeholder Refinado -->
-      <div v-if="!product.image" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 bg-gradient-to-br from-slate-50 to-slate-100/50 group-hover:scale-105 transition-transform duration-700 ease-out">
+      <div v-if="!product.image" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 bg-gradient-to-br from-slate-50 to-slate-100/50 group-hover/img:scale-105 transition-transform duration-700 ease-out">
         <ImageIcon class="w-12 h-12 mb-2 stroke-1" />
         <span class="text-xs font-medium uppercase tracking-widest text-slate-400">Sem Foto</span>
       </div>
       <template v-else>
-        <img :src="product.image" :alt="product.name" class="absolute inset-0 w-full h-full object-contain p-4 transition-all duration-700 ease-out group-hover:scale-105" :class="{'group-hover:opacity-0': product.imageBack}" />
-        <img v-if="product.imageBack" :src="product.imageBack" :alt="product.name + ' - Costas'" class="absolute inset-0 w-full h-full object-contain p-4 opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-105" />
+        <img :src="product.image" :alt="product.name" class="absolute inset-0 w-full h-full object-contain p-4 transition-all duration-700 ease-out group-hover/img:scale-105" :class="{'group-hover/img:opacity-0': product.imageBack}" />
+        <img v-if="product.imageBack" :src="product.imageBack" :alt="product.name + ' - Costas'" class="absolute inset-0 w-full h-full object-contain p-4 opacity-0 transition-all duration-700 ease-out group-hover/img:opacity-100 group-hover/img:scale-105" />
       </template>
       
       <!-- Categoria / Badge de Esgotado -->
@@ -31,8 +31,8 @@
     <div class="p-6 flex flex-col flex-grow">
       <div class="flex-grow">
         <h3 
-          class="font-semibold text-base text-slate-800 mb-2 leading-snug group-hover:text-primary transition-colors text-balance min-h-[2.75rem] cursor-pointer"
-          @click="$emit('open-details', product)"
+          class="font-semibold text-base text-slate-800 mb-2 leading-snug hover:text-amber-600 transition-colors text-balance min-h-[2.75rem] cursor-pointer"
+          @click="goToDetails"
         >
           {{ product.name }}
         </h3>
@@ -51,11 +51,11 @@
             'w-full px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 group/btn',
             isOutOfStock
               ? 'bg-slate-100 text-slate-400 border border-slate-200 hover:bg-slate-200'
-              : 'bg-slate-50 hover:bg-primary hover:text-slate-900 text-slate-700 border border-slate-200 hover:border-primary'
+              : 'bg-primary hover:bg-primary-dark text-slate-900 shadow-sm'
           ]"
         >
           <ShoppingCart class="w-4 h-4 transition-transform group-hover/btn:scale-110" />
-          <span>{{ isOutOfStock ? 'Ver Detalhes (Esgotado)' : 'Adicionar' }}</span>
+          <span>{{ isOutOfStock ? 'Ver Detalhes (Esgotado)' : 'Adicionar ao Carrinho' }}</span>
         </button>
       </div>
     </div>
@@ -64,10 +64,12 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { Image as ImageIcon, ShoppingCart } from '@lucide/vue'
 import { useCartStore } from '../stores/cart'
 import { toast } from 'vue-sonner'
 
+const router = useRouter()
 const emit = defineEmits(['open-details'])
 
 const props = defineProps({
@@ -98,15 +100,26 @@ const isOutOfStock = computed(() => {
   return (props.product.estoque || 0) <= 0
 })
 
+const goToDetails = () => {
+  router.push(`/produto/${props.product.id}`)
+}
+
 const addToCart = () => {
   if (hasSizes.value || isOutOfStock.value) {
-    emit('open-details', props.product)
+    goToDetails()
     return
   }
-  cartStore.addItem(props.product)
-  toast.success('Adicionado ao Carrinho', {
-    description: `${props.product.name} foi adicionado com sucesso.`,
-    duration: 3000,
-  })
+  const result = cartStore.addItem(props.product)
+  if (result && result.success) {
+    toast.success('Adicionado ao Carrinho', {
+      description: `${props.product.name} foi adicionado com sucesso.`,
+      duration: 3000,
+    })
+  } else if (result && result.reason === 'out_of_stock') {
+    toast.error('Estoque Insuficiente', {
+      description: `Quantidade máxima em estoque (${result.maxStock} un.) já atingida no carrinho.`,
+      duration: 4000,
+    })
+  }
 }
 </script>

@@ -233,6 +233,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore, api } from '../stores/auth'
 import { Loader2 } from '@lucide/vue'
+import { toast } from 'vue-sonner'
 
 const cartStore = useCartStore()
 const authStore = useAuthStore()
@@ -444,6 +445,10 @@ const submitOrder = async () => {
   } catch (error) {
     console.error('Erro ao gerar pagamento:', error)
     const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Ocorreu um erro ao gerar o link de pagamento. Tente novamente.'
+    toast.error('Erro ao Finalizar Pedido', {
+      description: errorMsg,
+      duration: 5000
+    })
     alert(errorMsg)
   } finally {
     isLoading.value = false
