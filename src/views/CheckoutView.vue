@@ -203,9 +203,14 @@
           <h2 class="text-lg font-medium text-slate-800 mb-6 pb-4 border-b border-slate-200">Resumo do Pedido</h2>
           
           <div class="space-y-4 mb-8 max-h-[400px] overflow-y-auto pr-2">
-            <div v-for="item in cartStore.items" :key="item.id" class="flex justify-between items-start gap-4">
+            <div v-for="(item, idx) in cartStore.items" :key="(item.id || idx) + '-' + (item.selectedSize || 'nosize')" class="flex justify-between items-start gap-4">
               <div class="flex-grow">
-                <p class="text-sm font-medium text-slate-800 line-clamp-2 leading-snug">{{ item.name }}</p>
+                <p class="text-sm font-medium text-slate-800 line-clamp-2 leading-snug">
+                  {{ item.name }}
+                  <span v-if="item.selectedSize" class="ml-1.5 inline-block text-xs font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-800">
+                    Tam: {{ item.selectedSize }}
+                  </span>
+                </p>
                 <p class="text-xs text-slate-500 mt-1">Qtd: {{ item.quantity }}</p>
               </div>
               <span class="font-medium text-slate-900 whitespace-nowrap text-sm">R$ {{ (item.price * item.quantity).toFixed(2) }}</span>
@@ -392,7 +397,7 @@ const submitOrder = async () => {
     const itensPedido = cartStore.items.map(item => ({
       produtoId: item.id || item._id, // Depende de como está no carrinho
       quantidade: item.quantity,
-      tamanhoSelecionado: item.tamanhoSelecionado || item.size || null
+      tamanhoSelecionado: item.selectedSize || item.tamanhoSelecionado || item.size || null
     }))
 
     const tenantId = import.meta.env.VITE_TENANT_ID || 'ID_DO_COLACO_AQUI'
@@ -438,7 +443,8 @@ const submitOrder = async () => {
     
   } catch (error) {
     console.error('Erro ao gerar pagamento:', error)
-    alert(error.response?.data?.message || 'Ocorreu um erro ao gerar o link de pagamento. Tente novamente.')
+    const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Ocorreu um erro ao gerar o link de pagamento. Tente novamente.'
+    alert(errorMsg)
   } finally {
     isLoading.value = false
   }

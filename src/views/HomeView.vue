@@ -148,10 +148,11 @@ const closeProductDetails = () => {
   }, 300)
 }
 
-const handleAddToCartFromModal = (product) => {
-  cartStore.addItem(product)
+const handleAddToCartFromModal = (product, selectedSize = null) => {
+  cartStore.addItem(product, selectedSize)
+  const sizeMsg = selectedSize ? ` (Tam: ${selectedSize})` : ''
   toast.success('Adicionado ao Carrinho', {
-    description: `${product.name} foi adicionado com sucesso.`,
+    description: `${product.name}${sizeMsg} foi adicionado com sucesso.`,
     duration: 3000,
   })
   closeProductDetails()
@@ -179,7 +180,11 @@ const fetchProducts = async () => {
           price: p.preco || p.price,
           category: capitalize(rawCategory),
           image: p.imagemPrincipal || p.imagem || p.image || null,
-          imageBack: p.imagemHover || null
+          imageBack: p.imagemHover || null,
+          tamanhos: p.tamanhos || [],
+          estoquePorTamanho: p.estoquePorTamanho || [],
+          gerenciaEstoque: p.gerenciaEstoque || false,
+          estoque: p.estoque || 0
         }
       })
     } else {

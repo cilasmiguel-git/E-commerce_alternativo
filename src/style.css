@@ -1,12 +1,30 @@
 @import "tailwindcss";
 
+:root {
+  --primary-color: #24303B;
+  --secondary-color: #ffde59;
+  --tertiary-color: #EC3237;
+  --background-color-1: #FFFFFF;
+  --background-color-2: #f4f6f8; 
+  --background-color-3: #f8f9fa; 
+  --text-color-1: #2b3a46; 
+  --text-color-2: #202020; 
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+  --hover-button-1: #E3E5E6;
+  --detail-color: #1d72b8;
+}
+
 @theme {
-  --color-primary: #fbb313; /* Amarelo do colégio */
-  --color-primary-dark: #e5a20f;
-  --color-secondary: #e62314; /* Vermelho do colégio */
-  --color-secondary-dark: #c01a0e;
+  --color-primary: #24303B; /* Azul Escuro / Slate padrão 360 */
+  --color-primary-dark: #1b242d;
+  --color-secondary: #ffde59; /* Amarelo do colégio */
+  --color-secondary-dark: #e5c74f;
+  --color-tertiary: #EC3237; /* Vermelho do colégio */
+  --color-tertiary-dark: #c8282d;
   --color-base: #ffffff;
-  --color-background: #f8fafc;
+  --color-background: #f4f6f8;
 }
 
 @layer base {

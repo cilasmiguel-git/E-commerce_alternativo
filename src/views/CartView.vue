@@ -18,24 +18,29 @@
     <div v-else class="grid lg:grid-cols-3 gap-8">
       <!-- Lista de Itens -->
       <div class="lg:col-span-2 space-y-4">
-        <div v-for="item in cartStore.items" :key="item.id" class="bg-white p-4 rounded-xl border border-slate-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.02)] flex flex-col sm:flex-row items-center gap-6 group">
+        <div v-for="(item, idx) in cartStore.items" :key="(item.id || idx) + '-' + (item.selectedSize || 'nosize')" class="bg-white p-4 rounded-xl border border-slate-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.02)] flex flex-col sm:flex-row items-center gap-6 group">
           <div class="w-full sm:w-24 aspect-square bg-slate-50 rounded-lg flex items-center justify-center flex-shrink-0 border border-slate-100">
             <ImageIcon v-if="!item.image" class="w-8 h-8 text-slate-300 stroke-1" />
             <img v-else :src="item.image" :alt="item.name" class="w-full h-full object-cover rounded-lg" />
           </div>
           
           <div class="flex-grow w-full text-center sm:text-left">
-            <h3 class="font-medium text-slate-800 line-clamp-1 mb-1">{{ item.name }}</h3>
+            <h3 class="font-medium text-slate-800 line-clamp-1 mb-1">
+              {{ item.name }}
+              <span v-if="item.selectedSize" class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                Tam: {{ item.selectedSize }}
+              </span>
+            </h3>
             <p class="text-sm font-semibold text-slate-500">R$ {{ item.price.toFixed(2) }}</p>
           </div>
           
           <div class="flex items-center justify-between w-full sm:w-auto gap-6 sm:gap-4">
             <div class="flex items-center bg-slate-50 rounded-lg border border-slate-100 p-1">
-              <button @click="cartStore.updateQuantity(item.id, item.quantity - 1)" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-colors shadow-sm">
+              <button @click="cartStore.updateQuantity(item.id, item.quantity - 1, item.selectedSize)" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-colors shadow-sm">
                 <Minus class="w-4 h-4" />
               </button>
               <span class="w-10 text-center font-medium text-sm text-slate-800">{{ item.quantity }}</span>
-              <button @click="cartStore.updateQuantity(item.id, item.quantity + 1)" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-colors shadow-sm">
+              <button @click="cartStore.updateQuantity(item.id, item.quantity + 1, item.selectedSize)" class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-white rounded-md transition-colors shadow-sm">
                 <Plus class="w-4 h-4" />
               </button>
             </div>
@@ -44,7 +49,7 @@
               R$ {{ (item.price * item.quantity).toFixed(2) }}
             </div>
             
-            <button @click="cartStore.removeItem(item.id)" class="text-slate-400 hover:text-red-500 p-2 transition-colors opacity-100 sm:opacity-50 group-hover:opacity-100" title="Remover item">
+            <button @click="cartStore.removeItem(item.id, item.selectedSize)" class="text-slate-400 hover:text-red-500 p-2 transition-colors opacity-100 sm:opacity-50 group-hover:opacity-100" title="Remover item">
               <Trash2 class="w-5 h-5" />
             </button>
           </div>

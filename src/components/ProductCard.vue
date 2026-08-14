@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white rounded-xl overflow-hidden flex flex-col h-full group border border-slate-100 hover:border-slate-200 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_-5px_rgba(6,81,237,0.1)] transition-all duration-300">
+  <div 
+    class="bg-white rounded-xl overflow-hidden flex flex-col h-full group border border-slate-100 hover:border-slate-200 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-[0_8px_30px_-5px_rgba(6,81,237,0.1)] transition-all duration-300"
+    :class="{'opacity-75': isOutOfStock}"
+  >
     <div class="relative aspect-[4/3] bg-white overflow-hidden flex items-center justify-center cursor-pointer" @click="$emit('open-details', product)">
       <!-- Placeholder Refinado -->
       <div v-if="!product.image" class="absolute inset-0 flex flex-col items-center justify-center text-slate-300 bg-gradient-to-br from-slate-50 to-slate-100/50 group-hover:scale-105 transition-transform duration-700 ease-out">
@@ -11,8 +14,11 @@
         <img v-if="product.imageBack" :src="product.imageBack" :alt="product.name + ' - Costas'" class="absolute inset-0 w-full h-full object-contain p-4 opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-105" />
       </template>
       
-      <!-- Categoria / Badge -->
-      <div v-if="product.category" class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm z-10">
+      <!-- Categoria / Badge de Esgotado -->
+      <div v-if="isOutOfStock" class="absolute top-3 left-3 bg-rose-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-md z-10">
+        Esgotado
+      </div>
+      <div v-else-if="product.category" class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm z-10">
         {{ product.category }}
       </div>
 
@@ -41,10 +47,15 @@
         
         <button 
           @click="addToCart"
-          class="w-full bg-slate-50 hover:bg-primary hover:text-slate-900 text-slate-700 border border-slate-200 hover:border-primary px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+          :class="[
+            'w-full px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 group/btn',
+            isOutOfStock
+              ? 'bg-slate-100 text-slate-400 border border-slate-200 hover:bg-slate-200'
+              : 'bg-slate-50 hover:bg-primary hover:text-slate-900 text-slate-700 border border-slate-200 hover:border-primary'
+          ]"
         >
           <ShoppingCart class="w-4 h-4 transition-transform group-hover/btn:scale-110" />
-          <span>Adicionar</span>
+          <span>{{ isOutOfStock ? 'Ver Detalhes (Esgotado)' : 'Adicionar' }}</span>
         </button>
       </div>
     </div>
@@ -57,7 +68,7 @@ import { Image as ImageIcon, ShoppingCart } from '@lucide/vue'
 import { useCartStore } from '../stores/cart'
 import { toast } from 'vue-sonner'
 
-defineEmits(['open-details'])
+const emit = defineEmits(['open-details'])
 
 const props = defineProps({
   product: {
@@ -73,7 +84,25 @@ const quantityInCart = computed(() => {
   return item ? item.quantity : 0
 })
 
+const hasSizes = computed(() => {
+  const hasEstoqueTam = props.product.estoquePorTamanho && props.product.estoquePorTamanho.length > 0
+  const hasTam = props.product.tamanhos && props.product.tamanhos.length > 0
+  return hasEstoqueTam || hasTam
+})
+
+const isOutOfStock = computed(() => {
+  if (!props.product.gerenciaEstoque) return false
+  if (props.product.estoquePorTamanho && props.product.estoquePorTamanho.length > 0) {
+    return props.product.estoquePorTamanho.every(item => item.estoque <= 0)
+  }
+  return (props.product.estoque || 0) <= 0
+})
+
 const addToCart = () => {
+  if (hasSizes.value || isOutOfStock.value) {
+    emit('open-details', props.product)
+    return
+  }
   cartStore.addItem(props.product)
   toast.success('Adicionado ao Carrinho', {
     description: `${props.product.name} foi adicionado com sucesso.`,

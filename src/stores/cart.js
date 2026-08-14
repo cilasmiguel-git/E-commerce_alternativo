@@ -27,30 +27,35 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
-  function addItem(product) {
-    const existingItem = items.value.find(item => item.id === product.id)
+  function addItem(product, selectedSize = null) {
+    const sizeToUse = selectedSize || product.selectedSize || product.tamanhoSelecionado || null
+    const existingItem = items.value.find(item => item.id === product.id && (item.selectedSize || null) === sizeToUse)
     if (existingItem) {
       existingItem.quantity++
     } else {
-      items.value.push({ ...product, quantity: 1 })
+      items.value.push({ 
+        ...product, 
+        selectedSize: sizeToUse,
+        quantity: 1 
+      })
     }
     saveToStorage()
   }
 
-  function removeItem(productId) {
-    const index = items.value.findIndex(item => item.id === productId)
+  function removeItem(productId, selectedSize = null) {
+    const index = items.value.findIndex(item => item.id === productId && (item.selectedSize || null) === (selectedSize || null))
     if (index !== -1) {
       items.value.splice(index, 1)
       saveToStorage()
     }
   }
 
-  function updateQuantity(productId, quantity) {
-    const item = items.value.find(item => item.id === productId)
+  function updateQuantity(productId, quantity, selectedSize = null) {
+    const item = items.value.find(item => item.id === productId && (item.selectedSize || null) === (selectedSize || null))
     if (item) {
       item.quantity = quantity
       if (item.quantity <= 0) {
-        removeItem(productId)
+        removeItem(productId, selectedSize)
       } else {
         saveToStorage()
       }
