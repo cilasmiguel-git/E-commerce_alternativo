@@ -257,9 +257,19 @@
             </div>
           </div>
           
-          <div class="border-t border-slate-200 pt-6 flex justify-between items-end">
-            <span class="text-sm font-medium text-slate-500 uppercase tracking-wide">Total a Pagar</span>
-            <span class="text-3xl font-semibold text-slate-900 tracking-tight">R$ {{ cartStore.totalPrice.toFixed(2) }}</span>
+          <div class="border-t border-slate-200 pt-6 space-y-3">
+            <div class="flex justify-between items-center text-sm text-slate-600">
+              <span>Subtotal dos Produtos</span>
+              <span class="font-medium text-slate-800">R$ {{ cartStore.totalPrice.toFixed(2) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-sm text-slate-600">
+              <span>Taxa de Processamento (3,5%)</span>
+              <span class="font-medium text-amber-700">+ R$ {{ gatewayFee.toFixed(2) }}</span>
+            </div>
+            <div class="border-t border-slate-200 pt-4 flex justify-between items-end">
+              <span class="text-sm font-semibold text-slate-800 uppercase tracking-wide">Total a Pagar</span>
+              <span class="text-3xl font-semibold text-slate-900 tracking-tight">R$ {{ totalWithFee.toFixed(2) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -268,7 +278,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore, api } from '../stores/auth'
@@ -283,6 +293,21 @@ const isLoading = ref(false)
 const loadingCep = ref(false)
 const isEditing = ref(false)
 const selectedPaymentMethod = ref('PIX')
+
+// Taxa do AbacatePay (3,5%) repassada ao cliente via fórmula de Gross-Up:
+// TotalComTaxa = Subtotal / (1 - 0.035)
+const ABACATE_FEE_PERCENTAGE = 3.5
+const totalWithFee = computed(() => {
+  const subtotal = cartStore.totalPrice || 0
+  if (subtotal <= 0) return 0
+  return subtotal / (1 - (ABACATE_FEE_PERCENTAGE / 100))
+})
+
+const gatewayFee = computed(() => {
+  const subtotal = cartStore.totalPrice || 0
+  if (subtotal <= 0) return 0
+  return totalWithFee.value - subtotal
+})
 
 const profile = ref({
   cpf: '',
