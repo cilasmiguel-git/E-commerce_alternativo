@@ -183,21 +183,21 @@
               <h3 class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-3">
                 Forma de Pagamento Desejada
               </h3>
-              <div class="grid grid-cols-3 gap-3 mb-4">
+              <div class="grid grid-cols-2 gap-3 mb-4">
                 <!-- Opção PIX -->
                 <button
                   type="button"
                   @click="selectedPaymentMethod = 'PIX'"
                   :class="[
-                    'flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer',
+                    'flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all cursor-pointer',
                     selectedPaymentMethod === 'PIX'
                       ? 'bg-amber-500/10 border-amber-500 text-slate-900 shadow-sm ring-1 ring-amber-500'
                       : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                   ]"
                 >
                   <QrCode class="w-5 h-5 mb-1" :class="selectedPaymentMethod === 'PIX' ? 'text-amber-600' : 'text-slate-500'" />
-                  <span class="text-xs font-bold">Apenas PIX</span>
-                  <span class="text-[10px] text-slate-500 mt-0.5">Instantâneo</span>
+                  <span class="text-xs font-bold">PIX</span>
+                  <span class="text-[10px] text-slate-500 mt-0.5">Pagamento Instantâneo</span>
                 </button>
 
                 <!-- Opção CARTÃO -->
@@ -205,31 +205,15 @@
                   type="button"
                   @click="selectedPaymentMethod = 'CARD'"
                   :class="[
-                    'flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer',
+                    'flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all cursor-pointer',
                     selectedPaymentMethod === 'CARD'
                       ? 'bg-amber-500/10 border-amber-500 text-slate-900 shadow-sm ring-1 ring-amber-500'
                       : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
                   ]"
                 >
                   <CreditCard class="w-5 h-5 mb-1" :class="selectedPaymentMethod === 'CARD' ? 'text-amber-600' : 'text-slate-500'" />
-                  <span class="text-xs font-bold">Cartão Crédito</span>
+                  <span class="text-xs font-bold">Cartão de Crédito</span>
                   <span class="text-[10px] text-slate-500 mt-0.5">Parcele sua compra</span>
-                </button>
-
-                <!-- Opção AMBOS -->
-                <button
-                  type="button"
-                  @click="selectedPaymentMethod = 'ALL'"
-                  :class="[
-                    'flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all cursor-pointer',
-                    selectedPaymentMethod === 'ALL'
-                      ? 'bg-amber-500/10 border-amber-500 text-slate-900 shadow-sm ring-1 ring-amber-500'
-                      : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-                  ]"
-                >
-                  <Wallet class="w-5 h-5 mb-1" :class="selectedPaymentMethod === 'ALL' ? 'text-amber-600' : 'text-slate-500'" />
-                  <span class="text-xs font-bold">PIX ou Cartão</span>
-                  <span class="text-[10px] text-slate-500 mt-0.5">Ambas as opções</span>
                 </button>
               </div>
             </div>
@@ -288,7 +272,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
 import { useAuthStore, api } from '../stores/auth'
-import { Loader2, QrCode, CreditCard, Wallet } from '@lucide/vue'
+import { Loader2, QrCode, CreditCard } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 
 const cartStore = useCartStore()
@@ -298,7 +282,7 @@ const router = useRouter()
 const isLoading = ref(false)
 const loadingCep = ref(false)
 const isEditing = ref(false)
-const selectedPaymentMethod = ref('ALL')
+const selectedPaymentMethod = ref('PIX')
 
 const profile = ref({
   cpf: '',
