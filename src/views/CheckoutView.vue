@@ -189,7 +189,7 @@
                   type="button"
                   @click="selectedPaymentMethod = 'PIX'"
                   :class="[
-                    'flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all cursor-pointer',
+                    'flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all cursor-pointer relative',
                     selectedPaymentMethod === 'PIX'
                       ? 'bg-amber-500/10 border-amber-500 text-slate-900 shadow-sm ring-1 ring-amber-500'
                       : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
@@ -197,7 +197,7 @@
                 >
                   <QrCode class="w-5 h-5 mb-1" :class="selectedPaymentMethod === 'PIX' ? 'text-amber-600' : 'text-slate-500'" />
                   <span class="text-xs font-bold">PIX</span>
-                  <span class="text-[10px] text-slate-500 mt-0.5">Pagamento Instantâneo</span>
+                  <span class="text-[10px] text-emerald-600 font-medium mt-0.5">Sem taxa adicional</span>
                 </button>
 
                 <!-- Opção CARTÃO -->
@@ -205,7 +205,7 @@
                   type="button"
                   @click="selectedPaymentMethod = 'CARD'"
                   :class="[
-                    'flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all cursor-pointer',
+                    'flex flex-col items-center justify-center p-3.5 rounded-xl border text-center transition-all cursor-pointer relative',
                     selectedPaymentMethod === 'CARD'
                       ? 'bg-amber-500/10 border-amber-500 text-slate-900 shadow-sm ring-1 ring-amber-500'
                       : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50'
@@ -213,7 +213,7 @@
                 >
                   <CreditCard class="w-5 h-5 mb-1" :class="selectedPaymentMethod === 'CARD' ? 'text-amber-600' : 'text-slate-500'" />
                   <span class="text-xs font-bold">Cartão de Crédito</span>
-                  <span class="text-[10px] text-slate-500 mt-0.5">Parcele sua compra</span>
+                  <span class="text-[10px] text-amber-700 font-medium mt-0.5">+3,5% taxa do gateway</span>
                 </button>
               </div>
             </div>
@@ -262,10 +262,23 @@
               <span>Subtotal dos Produtos</span>
               <span class="font-medium text-slate-800">R$ {{ cartStore.totalPrice.toFixed(2) }}</span>
             </div>
+            
+            <!-- Taxa de Processamento Discriminada -->
             <div class="flex justify-between items-center text-sm text-slate-600">
-              <span>Taxa de Processamento (3,5%)</span>
-              <span class="font-medium text-amber-700">+ R$ {{ gatewayFee.toFixed(2) }}</span>
+              <span>
+                Taxa de Processamento
+                <span class="text-xs text-slate-400 font-normal ml-1">
+                  {{ selectedPaymentMethod === 'CARD' ? '(Cartão 3,5%)' : '(PIX)' }}
+                </span>
+              </span>
+              <span v-if="selectedPaymentMethod === 'CARD'" class="font-medium text-amber-700">
+                + R$ {{ gatewayFee.toFixed(2) }}
+              </span>
+              <span v-else class="font-medium text-emerald-600">
+                Grátis (R$ 0,00)
+              </span>
             </div>
+
             <div class="border-t border-slate-200 pt-4 flex justify-between items-end">
               <span class="text-sm font-semibold text-slate-800 uppercase tracking-wide">Total a Pagar</span>
               <span class="text-3xl font-semibold text-slate-900 tracking-tight">R$ {{ totalWithFee.toFixed(2) }}</span>
@@ -294,19 +307,27 @@ const loadingCep = ref(false)
 const isEditing = ref(false)
 const selectedPaymentMethod = ref('PIX')
 
-// Taxa do AbacatePay (3,5%) repassada ao cliente via fórmula de Gross-Up:
+// Taxa do AbacatePay (3,5%) repassada ao cliente via Gross-Up APENAS se selecionado Cartão de Crédito:
 // TotalComTaxa = Subtotal / (1 - 0.035)
 const ABACATE_FEE_PERCENTAGE = 3.5
-const totalWithFee = computed(() => {
-  const subtotal = cartStore.totalPrice || 0
-  if (subtotal <= 0) return 0
-  return subtotal / (1 - (ABACATE_FEE_PERCENTAGE / 100))
-})
 
 const gatewayFee = computed(() => {
   const subtotal = cartStore.totalPrice || 0
   if (subtotal <= 0) return 0
-  return totalWithFee.value - subtotal
+  if (selectedPaymentMethod.value === 'CARD') {
+    const total = subtotal / (1 - (ABACATE_FEE_PERCENTAGE / 100))
+    return total - subtotal
+  }
+  return 0
+})
+
+const totalWithFee = computed(() => {
+  const subtotal = cartStore.totalPrice || 0
+  if (subtotal <= 0) return 0
+  if (selectedPaymentMethod.value === 'CARD') {
+    return subtotal / (1 - (ABACATE_FEE_PERCENTAGE / 100))
+  }
+  return subtotal
 })
 
 const profile = ref({
